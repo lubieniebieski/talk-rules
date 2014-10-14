@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Stick to the rules</title>
+
+    <meta name="description" content="How to write your ruby apps">
+    <meta name="author" content="adam nowak">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+    <script>
+      if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      }
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1>stick to the rules</h1>
+          <h3>
+            adam nowak / <a href="http://twitter.com/lubieniebieski">@lubieniebieski</a>
+          </h3>
+          <h4>@netguru</h4>
+        </section>
+
+        <section>
+          <section>
+           <h2>what rules?!</h2>
+           <p>
+           <strong>spoiler alert:</strong>
+           this presentation will be about my code-related rules, most of them relatead to stuff I do working day to day with Ruby on Rails</p>
+          </section>
+          <section>
+            <h2>don't be affraid to interrupt and discuss / ask questions</h2>
+          </section>
+          <section>
+            <h2>lots of the presented ideas are from the ideal world</h2>
+            <h3>he he.</h3>
+          </section>
+          <section>
+            <h2>no images</h2>
+            <h3>:(</h3>
+          </section>
+          <section>
+            <h2>some code examples</h2>
+            <h3>yay!</h3>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h1>why rules?</h1>
+          </section>
+          <section>
+            <h2>I'm lazy. but I need to get things done.</h2>
+          </section>
+          <section>
+            <h2>it's good to stick to something</h2>
+          </section>
+          <section>
+            <h2>it's easier to make decisions (or even not to have to make ones)</h2>
+          </section>
+          <section>
+            <h2>we have <strong class='fragment highlight-blue'>OUR</strong> way at netguru - rules are good!</h2>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>Sandi Metz' rules</h1>
+          </section>
+          <section>
+            <h1>Classes should be no longer than one hundred lines of code.</h1>
+          </section>
+          <section>
+            <h1>Methods should be no longer than five lines of code.</h1>
+          </section>
+          <section>
+             <h1>Pass no more than four parameters into a method. Hash options are parameters.</h1>
+          </section>
+          <section data-markdown>
+            ## Controllers should instantiate only one object.
+          </section>
+          <section>
+            <h3>check a follow up in this post</h3>
+            <a href="http://robots.thoughtbot.com/sandi-metz-rules-for-developers">http://robots.thoughtbot.com/sandi-metz-rules-for-developers</a>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h1>a few general rules</h1>
+          </section>
+          <section>
+            <h1>don't refactor too early</h1>
+            <h2>you might get unwanted results</h2>
+          </section>
+          <section>
+            <h1>respect code style guides</h1>
+            <h2>if you're unsure how to do something... just stick to the rules proposed by the community</h2>
+            <a href="https://github.com/bbatsov/ruby-style-guide">https://github.com/bbatsov/ruby-style-guide</a>
+          </section>
+          <section>
+            <h1>try to keep your work/code/focus scope as small as possible</h1>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h1>think about communication</h1>
+          </section>
+          <section data-markdown>
+            ### method names returning bool values
+
+            use `?` sign
+            ```haml
+            // some_view.haml
+            %h1= book.permissions.for_user(current_user) == 'read'
+            ```
+
+            vs
+
+            ```ruby
+            # book.rb
+            def readable?
+              # some code returning bool value
+              true
+            end
+
+            # book.readable?
+            ```
+
+            you should be able to read code like a newspaper
+          </section>
+          <section data-markdown>
+            ### ask explicitly
+
+            ```ruby
+            if some_value ...
+            if !some_value ... # unless some_value
+            if items
+            ```
+
+            vs
+
+            ```ruby
+            if sume_value.present? ...
+            if some_value.nil?
+            if items.any?
+            ```
+
+            all if statements should operate on boolean (`true`/`false`) values
+
+            ```ruby
+            present? nil? any? all? exists? blank? empty?
+            ```
+          </section>
+          <section data-markdown>
+            ### Bang bang bang!
+
+            ```ruby
+            class Thing # it's formatted badly because it was hard to fit it here
+              def break!
+                @broken = true; self
+              end
+              def broken?
+                @broken || false
+              end
+            end
+
+            thing = Thing.new
+            #> Thing:0x007fdb6cae0a20
+            thing.broken?
+            #> false
+            thing.break!
+            #> Thing:0x007fdb6cae0a20 @broken=true
+            thing.broken?
+            #> true
+            ```
+
+            #### Core-lib examples with `!` equivalents:
+            `downcase`, `upcase`, `merge`, `reject`, etc.
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>context</h1>
+          </section>
+          <section data-markdown>
+            ### Different responsibilities
+
+            ```ruby
+            class Post
+              has_many :comments
+            end
+            ```
+
+            vs
+
+            ```ruby
+            class Admin::Post
+              validates :title, presence: true
+            end
+            ```
+
+            same object in different contexts has a different meaning
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>naming variables...</h1>
+            <h2 class='fragment fade-in'>... is hard!</h2>
+            <h2 class='fragment fade-in'>but important!</h2>
+          </section>
+          <section>
+            <h1>name variables with regards to context</h1>
+          </section>
+          <section data-markdown>
+            ```ruby
+            class RaceResult
+              def initialize(user1, user2)
+                ...
+              end
+            end
+            ```
+
+            vs
+
+            ```ruby
+            class RaceResult
+              def initialize(winner, runnerup)
+                ...
+              end
+            end
+            ```
+
+            ```ruby
+            RaceResult.new(biker_john, biker_sam)
+            RaceResult.new(honda_car, bmw_car)
+            ```
+          </section>
+          <section data-markdown>
+            ## name objects so someone else is able to understand its meaning
+
+            ```ruby
+            collection.each do |itm|
+              itm.del!
+            end
+            ```
+
+            vs
+
+            ```ruby
+            cart_items.each do |item|
+              item.buy!
+            end
+            ```
+          </section>
+          <section data-markdown>
+            ## try to avoid too general naming for object holders (containers)
+
+            e.g. `container`, `array`, `hash` - just name it after items it contains
+          </section>
+          <section data-markdown>
+            ## Feature Flags
+
+            use `ff_*` for naming features
+
+            it's easy to find
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>dependencies</h1>
+          </section>
+          <section data-markdown>
+            ## pass all the items required by partial
+
+            ```haml
+            - # app/views/users/some/nested/context/_user_info.haml
+            = friend.name
+            ```
+
+            vs
+
+            ```haml
+            - # app/views/friends/show.haml
+            ...
+            = render 'user_info', user: friend
+            ...
+            ```
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>data migrations</h1>
+          </section>
+          <section data-markdown>
+            ## logallthethings!
+
+            ```ruby
+            class UpdateUsersAddresses
+              def up
+                say "Number of users to update: #{User.count}"
+                say_with_time 'Updating users addresses...' do
+                  ...
+                  if user_update.failed?
+                    say "User ##{user_update.user_id} refused to be updated"
+                  end
+                  ...
+                end
+              end
+            end
+            ```
+
+            ```
+            == 20141009094214 UpdateUsersAddressess: migrating =============
+            -- Number of users to update: 413
+            -- Updating users addresses...
+            -- User #666 refused to be updated
+             -> 1.337s
+             ```
+          </section>
+          <section>
+             <h2>Audit state pre and post execution</h2>
+             <h3>and check the results</h3>
+          </section>
+          <section>
+            <h2>Make it re-runnable</h2>
+            <h3>and don't be stressed when migration fails</h3>
+          </section>
+          <section>
+            <h2>Don't depend on AR relations</h2>
+          </section>
+          <section>
+            <h2>Remember about rollback migration</h2>
+          </section>
+          <section data-markdown>
+            ## good approach
+            `bin/rake db:migrate db:rollback && bin/rake db:migrate`
+
+            http://robots.thoughtbot.com/workflows-for-writing-migrations-with-rollbacks-in-mind
+          </section>
+          <section>
+            <h2>read more:</h2>
+             <ul>
+               <li><a href="http://codecrate.com/2014/09/using-rails-migrations-to-manipulate-data.html">http://codecrate.com/2014/09/using-rails-migrations-to-manipulate-data.html</a></li>
+               <li><a href="http://railsguides.net/change-data-in-migrations-like-a-boss/">http://railsguides.net/change-data-in-migrations-like-a-boss/</a></li>
+               <li><a href="http://guides.rubyonrails.org/migrations.html#using-models-in-your-migrations">http://guides.rubyonrails.org/migrations.html#using-models-in-your-migrations</a></li>
+             </ul>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>wrap the data</h1>
+          </section>
+          <section>
+            <h2>use view objects</h2>
+          </section>
+          <section>
+            <h2>... or use decorators</h2>
+            <a href="https://github.com/drapergem/draper">https://github.com/drapergem/draper</a>
+          </section>
+          <section>
+            <h2>... or use both</h2>
+          </section>
+          <section data-markdown>
+            View Object
+            ```ruby
+            class ShoppingCartView
+              attr_accessor :items
+
+              def initialize(items)
+                self.items = items
+              end
+
+              def total
+                "#{items.sum(:price)} Rubies"
+              end
+
+              def popular_items
+                items.select { |i| i.popular? }
+              end
+            end
+            ```
+          </section>
+          <section data-markdown>
+            Decorator
+
+            ```ruby
+            class CartItemDecorator < Draper::Decorator
+              def short_title
+                object.title.truncate_words(5)
+              end
+
+              def li_css_class
+                'popular' if popular?
+              end
+            end
+            ```
+          </section>
+          <section data-markdown>
+            Template (view)
+
+            ```haml
+            %h1 Shopping Cart
+            %ul
+              - cart.items.each do |item|
+                %li{ class: item.li_css_class }= item.short_title
+
+            = "#{cart.popular_items.count} of your items are very popular"
+            end
+            ```
+          </section>
+          <section data-markdown>
+            * don't use models directly - decorate them
+            * if you have complex a logic - create an object wrapping all the data you need on a page
+            * it's good to have one object per page (it may contain other decorated objects)
+            * no need to use nested data (`post.author.address.city`) - structure your wrapping object as you need it in the template
+          </section>
+          <section>
+            <h2>expose the data</h2>
+            <h4>check
+              <a href="http://decentexposure.info/">http://decentexposure.info/</a>
+            </h4>
+            no more `@` in controllers!
+          </section>
+          <section data-markdown>
+            ## Comparison (1)
+
+            ```ruby
+            # app/controllers/users_controller.rb
+
+            class UsersController
+              def index
+                @users = User.all
+              end
+            end
+            ```
+            and view
+            ```haml
+            %h1 Users:
+            = @users.count
+            ```
+          </section>
+          <section data-markdown>
+            ## Comparison (2)
+
+            ```ruby
+            # app/controllers/users_controller.rb
+
+            class UsersController
+              helper_method :users
+
+              def index; end
+
+              private
+
+              def users
+                User.all
+              end
+            end
+            ```
+
+            and view
+
+            ```haml
+            %h1 Users:
+            = users.count
+            ```
+          </section>
+          <section data-markdown>
+            ## Comparison (3)
+
+            ```ruby
+            # app/controllers/users_controller.rb
+
+            class UsersController
+              expose(:users)
+              # expose(:users) { User.all }
+
+              def index; end
+            end
+            ```
+
+            and view
+
+            ```haml
+            %h1 Users:
+            = users.count
+            ```
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>Extract data gathering</h1>
+            <h2>use repositiories</h2>
+          </section>
+          <section data-markdown>
+            ## sample repository
+
+            ```ruby
+            class ItemRepository
+              attr_accessor :user
+
+              def initialize(user)
+                self.user = user
+              end
+
+              def all
+                Item.where(user_id: user.id)
+              end
+
+              def active
+                all.where(active: true)
+              end
+            end
+            ```
+
+            ```ruby
+            ItemRepository.new(current_user).active
+            ```
+          </section>
+          <section>
+            <h2>Why?</h2>
+            <ul>
+              <li>easy to test</li>
+              <li>easy to use</li>
+              <li>you can avoid scopes in model (good/bad)</li>
+              <li>use with AR first, then easy to migrate to API-based solution</li>
+            </ul>
+          </section>
+          <section data-markdown>
+            ## Recent ideas
+
+            * return collections as arrays, not `AR::Relation`
+              * focus on optimization encapsulated it repository
+              * no more `n+1` queries?
+            * no need for relations anymore?
+          </section>
+          <section>
+            <h1>want more?</h1>
+          </section>
+          <section>
+            <h1>use Search objects</h1>
+          </section>
+          <section data-markdown>
+          ## Sample search object
+          ```ruby
+          class IdeaSearch
+            search_on Idea
+            searches :name, :popular
+
+            def search_name
+              search.where(name: name)
+            end
+
+            def search_popular
+              search.where('users_count > 10')
+            end
+          end
+          ```
+
+          ```ruby
+          search = IdeaSearch.new(popular: true)
+          search.results
+          ```
+          </section>
+          <section>
+            <h2>Check out Searchlight gem</h2>
+            <a href="https://github.com/nathanl/searchlight">https://github.com/nathanl/searchlight</a>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>thin models vs thin controllers</h1>
+            <h2>why not thin... everything?</h2>
+          </section>
+          <section>
+            <p>multiple layers = a lot more objects, but it will be much easier to maintain</p>
+          </section>
+          <section>
+            <h2>controller is the place where you put your dependencies</h2>
+          </section>
+          <section>
+            <h2>typical flow in controller</h2>
+            <h4>just displaying things</h4>
+            <p>
+              <ul>
+                <li>get data (model)</li>
+                <li>display data (model)</li>
+              </ul>
+            </p>
+
+            <h3>vs</h3>
+
+            <p>
+              <ul>
+                <li>get data (repository)</li>
+                <li>display data (view object / decorator)</li>
+              </ul>
+            </p>
+          </section>
+          <section data-markdown>
+            ### Model
+
+            ```ruby
+            # ar/post.rb
+
+            class Post < ActiveRecord::Base
+              belongs_to :author
+              has_many :comments
+            end
+            ```
+
+            ### Repository
+
+            ```ruby
+            # repositories/post_repository.rb
+
+            class PostRepository
+              def all
+                base_relation.order(author: :id)
+              end
+
+              private
+
+              def base_relation
+                Post.includes(:comments, :author)
+              end
+            end
+            ```
+          </section>
+          <section data-markdown>
+            ### View Object
+
+            ```ruby
+            # view_objects/post_view.rb
+
+            class PostView
+              attr_accessor :post
+              delegate :title, :author, to: :post
+
+              def initialize(post)
+                self.post = post
+              end
+
+              def author_name
+                author.name
+              end
+
+              def author_avatar
+                gravatar(author.email)
+              end
+            end
+            ```
+          </section>
+          <section data-markdown>
+            ### Controller
+
+            ```ruby
+            # controllers/posts_controller.rb
+
+            class PostsController
+              def index
+                @posts = decorated_posts
+              end
+
+              private
+
+              def decorated_posts
+                post_repository.all.map { |p| PostView.new(post) }
+              end
+
+              def post_repository
+                PostRepository.new
+              end
+            end
+            ```
+          </section>
+          <section data-markdown>
+            ### View
+
+            ```ruby
+            # views/posts/index.haml
+            %h1 All posts
+
+            %ul
+              - @posts.each do |post|
+                %li
+                  = post.title
+                  by
+                  = post.author_name
+            ```
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>use services</h1>
+          </section>
+          <section data-markdown>
+            ## typical service
+            ```ruby
+            class Users::Create
+              attr_accessor :email, :user_mailer
+
+              def initialize(email:, user_mailer = nil)
+                self.email = email
+                self.user_mailer = user_mailer || UserMailer.new
+              end
+
+              def call
+                user = create_db_user(email)
+                send_intro_email(user)
+                user
+              end
+
+              private
+
+              def create_db_user(email); end
+
+              def send_intro_email(user)
+                user_mailer.intro(user).deliver
+              end
+            end
+            ```
+          </section>
+          <section data-markdown>
+            ## response objects
+
+            ```ruby
+            class Reponse::Success
+              def success?
+                true
+              end
+            end
+            ```
+            ```ruby
+            class Reponse::Error
+              def success?
+                false
+              end
+            end
+            ```
+            ```ruby
+            # ... service class
+
+            def call
+              ...
+              Response::Success.new
+            end
+            ```
+          </section>
+          <section data-markdown>
+            ## controller gets smaller
+
+            ```ruby
+            class UsersController
+              def create
+                user_creation = Users::Create.new(params[:user]).call
+                if user_creation.success?
+                  render text: 'OK'
+                else
+                  render text: 'NOT OK', status: :unprocessable_entity
+                end
+              end
+            end
+            ```
+          </section>
+          <section>
+            <h2>services: summary</h2>
+            <ul>
+              <li>pass all the dependencies</li>
+              <li>use only one public method `call`</li>
+              <li>try them as special forces to do one job particulary well</li>
+              <li>plurar namespace `Users::*` - avoid namespace clashes</li>
+              <li>use response objects if needed</li>
+              <li>read <a href="https://netguru.co/blog/service-objects-in-rails-will-help">Pewniak's blogpost</a></li>
+            </ul>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>why this is hard?</h1>
+          </section>
+          <section>
+            <h2>you have to write more</h2>
+          </section>
+          <section>
+            <h2>you have to test more</h2>
+          </section>
+          <section>
+            <h2>you don't know when to start</h2>
+          </section>
+          <section>
+            <h2>14 developers before you were trying their approach</h2>
+          </section>
+          <section>
+            <h2>you haven't experienced the pain yet</h2>
+          </section>
+          <section>
+            <h2>... or you haven't heard the stories by people who have</h2>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>test wisely</h1>
+          </section>
+          <section>
+            <h2>don't test private methods</h2>
+            <p>they're about to change, those are only implementation details</p>
+          </section>
+          <section>
+            <h2>don't stub too much</h2>
+            <p>maybe use some dependency injections instead?</p>
+          </section>
+          <section>
+            <h2>focus on contexts</h2>
+          </section>
+          <section>
+            <h2>always have your greenpath covered with acceptance tests</h2>
+            <p>
+            <strong>
+              remember:
+            </strong>
+            buisness is the most important thing (almost all the time)</p>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h1>why is it beneficial?</h1>
+          </section>
+          <section>
+            <h2>distributed responsibility</h2>
+          </section>
+          <section>
+            <h2>tests are simpler</h2>
+          </section>
+          <section>
+            <h2>smaller scopes allows people to jump in very quickly</h2>
+          </section>
+        </section>
+        <section>
+          <h1>THE END</h1>
+          <h3>t.hanks!</h3>
+        </section>
+        <section data-markdown>
+          ## using JS
+
+          * use data-attributes for data
+          * ... and data binding
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Parallax scrolling
+        // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+        // parallaxBackgroundSize: '2100px 900px',
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
